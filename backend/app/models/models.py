@@ -281,6 +281,7 @@ class Match(Base):
     events = relationship("MatchEvent", back_populates="match")
     odds = relationship("Odd", back_populates="match")
     predictions = relationship("Prediction", back_populates="match")
+    bets = relationship("Bet", back_populates="match")
 
     __table_args__ = (
         Index("idx_match_round", "round_id"),
@@ -478,6 +479,39 @@ class Prediction(Base):
     __table_args__ = (
         Index("idx_prediction_match", "match_id"),
         Index("idx_prediction_model", "model_name"),
+    )
+
+
+class Bet(Base):
+    """User-registered bet entity."""
+
+    __tablename__ = "bets"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    match_id: Mapped[int] = mapped_column(Integer, ForeignKey("matches.id"))
+    sportsbook: Mapped[str] = mapped_column(String(60), default="Caliente")
+    market: Mapped[str] = mapped_column(String(80), nullable=False)
+    outcome: Mapped[str] = mapped_column(String(80), nullable=False)
+    odd_value: Mapped[float] = mapped_column(Float, nullable=False)
+    stake: Mapped[float] = mapped_column(Float, nullable=False)
+    expected_probability: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="open")
+    potential_payout: Mapped[float] = mapped_column(Float, default=0.0)
+    actual_payout: Mapped[float] = mapped_column(Float, default=0.0)
+    placed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    settled_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    match = relationship("Match", back_populates="bets")
+
+    __table_args__ = (
+        Index("idx_bet_match", "match_id"),
+        Index("idx_bet_status", "status"),
+        Index("idx_bet_placed", "placed_at"),
     )
 
 

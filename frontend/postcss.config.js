@@ -1,5 +1,6 @@
-import type { Config } from 'tailwindcss'
-
-export default {
-  plugins: [],
-} satisfies Config
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};

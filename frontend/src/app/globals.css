@@ -1,6 +1,13 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-1: #090f1d;
+  --bg-2: #0f172a;
+  --accent-1: #22d3ee;
+  --accent-2: #34d399;
+}
 
 * {
   margin: 0;
@@ -13,9 +20,18 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-body), 'Segoe UI', sans-serif;
+  background: linear-gradient(140deg, var(--bg-1), var(--bg-2));
+  color: #e2e8f0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
 }

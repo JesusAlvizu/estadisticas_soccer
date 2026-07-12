@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 10s
@@ -73,6 +73,14 @@ services:
       DEBUG: ${DEBUG:-true}
       API_KEY_FOOTBALL: ${API_KEY_FOOTBALL:-}
       API_KEY_SPORTS: ${API_KEY_SPORTS:-}
+      SPORTMONKS_API_KEY: ${SPORTMONKS_API_KEY:-}
+      SPORTMONKS_BASE_URL: ${SPORTMONKS_BASE_URL:-https://api.sportmonks.com/v3/football}
+      SPORTMONKS_LEAGUE_ID: ${SPORTMONKS_LEAGUE_ID:-262}
+      LIGA_MX_SYNC_ENABLED: ${LIGA_MX_SYNC_ENABLED:-true}
+      LIGA_MX_LEAGUE_ID: ${LIGA_MX_LEAGUE_ID:-262}
+      LIGA_MX_SEASON: ${LIGA_MX_SEASON:-2026}
+      LIGA_MX_TOURNAMENT_START: ${LIGA_MX_TOURNAMENT_START:-}
+      LIGA_MX_TOURNAMENT_END: ${LIGA_MX_TOURNAMENT_END:-}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
     depends_on:
       postgres:
@@ -100,6 +108,15 @@ services:
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
       ENVIRONMENT: ${ENVIRONMENT:-development}
+      API_KEY_FOOTBALL: ${API_KEY_FOOTBALL:-}
+      SPORTMONKS_API_KEY: ${SPORTMONKS_API_KEY:-}
+      SPORTMONKS_BASE_URL: ${SPORTMONKS_BASE_URL:-https://api.sportmonks.com/v3/football}
+      SPORTMONKS_LEAGUE_ID: ${SPORTMONKS_LEAGUE_ID:-262}
+      LIGA_MX_SYNC_ENABLED: ${LIGA_MX_SYNC_ENABLED:-true}
+      LIGA_MX_LEAGUE_ID: ${LIGA_MX_LEAGUE_ID:-262}
+      LIGA_MX_SEASON: ${LIGA_MX_SEASON:-2026}
+      LIGA_MX_TOURNAMENT_START: ${LIGA_MX_TOURNAMENT_START:-}
+      LIGA_MX_TOURNAMENT_END: ${LIGA_MX_TOURNAMENT_END:-}
     depends_on:
       - postgres
       - redis
@@ -108,7 +125,7 @@ services:
       - ./backend:/app
     networks:
       - estadisticas_network
-    command: celery -A app.tasks worker --loglevel=info --concurrency=4
+    command: celery -A app.tasks.celery_app:app worker --loglevel=info --concurrency=4
 
   # Celery Beat (Scheduler)
   celery_beat:
@@ -121,6 +138,15 @@ services:
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
       ENVIRONMENT: ${ENVIRONMENT:-development}
+      API_KEY_FOOTBALL: ${API_KEY_FOOTBALL:-}
+      SPORTMONKS_API_KEY: ${SPORTMONKS_API_KEY:-}
+      SPORTMONKS_BASE_URL: ${SPORTMONKS_BASE_URL:-https://api.sportmonks.com/v3/football}
+      SPORTMONKS_LEAGUE_ID: ${SPORTMONKS_LEAGUE_ID:-262}
+      LIGA_MX_SYNC_ENABLED: ${LIGA_MX_SYNC_ENABLED:-true}
+      LIGA_MX_LEAGUE_ID: ${LIGA_MX_LEAGUE_ID:-262}
+      LIGA_MX_SEASON: ${LIGA_MX_SEASON:-2026}
+      LIGA_MX_TOURNAMENT_START: ${LIGA_MX_TOURNAMENT_START:-}
+      LIGA_MX_TOURNAMENT_END: ${LIGA_MX_TOURNAMENT_END:-}
     depends_on:
       - postgres
       - redis
@@ -129,7 +155,7 @@ services:
       - ./backend:/app
     networks:
       - estadisticas_network
-    command: celery -A app.tasks beat --loglevel=info
+    command: celery -A app.tasks.celery_app:app beat --loglevel=info
 
   # Frontend NextJS
   frontend:
@@ -138,6 +164,7 @@ services:
       dockerfile: Dockerfile
     container_name: estadisticas_frontend
     environment:
+      NODE_ENV: development
       NEXT_PUBLIC_API_URL: http://localhost:8000
       NEXT_PUBLIC_API_BASEURL: http://backend:8000
     depends_on:
